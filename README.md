@@ -28,6 +28,15 @@ Na prática: o índice tende a se mover *junto* com o preço no mesmo dia (o que
 ele é parcialmente derivado de volatilidade e momentum), mas **não prediz o próximo dia**. Os
 números exatos do dia mudam a cada ingestão — o dashboard sempre mostra o cálculo atual.
 
+O dashboard também traz:
+
+- **Correlação em janela móvel (30 dias)** — a correlação agregada do ano inteiro esconde se a
+  relação muda por regime de mercado; a janela móvel mostra isso dia a dia.
+- **Backtest** de uma estratégia simples ("compra no medo extremo, vende na ganância extrema",
+  decidida sempre com a leitura do dia anterior para evitar lookahead bias) contra apenas comprar
+  e segurar. No período atual, a estratégia perde menos que o buy & hold durante a queda do
+  mercado — não porque acerta o timing, mas porque passa parte do tempo fora do mercado.
+
 ## Stack
 
 - Next.js 16 (App Router) + TypeScript + Tailwind CSS 4

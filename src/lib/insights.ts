@@ -13,6 +13,12 @@ export type Insights = {
   eth: { sameDay: number; nextDay: number };
 };
 
+export type RollingCorrelationPoint = {
+  date: string;
+  btc: number;
+  eth: number;
+};
+
 /**
  * Computes two correlations per asset:
  * - sameDay: does today's Fear & Greed value line up with today's price move?
@@ -54,4 +60,37 @@ export function computeInsights(snapshots: Snapshot[]): Insights {
             ),
     },
   };
+}
+
+/**
+ * Same-day Pearson correlation over a sliding window, so you can see whether
+ * the sentiment/price relationship holds steady or drifts across market
+ * regimes instead of collapsing the whole history into one number.
+ */
+export function computeRollingCorrelation(
+  snapshots: Snapshot[],
+  windowSize = 30
+): RollingCorrelationPoint[] {
+  const sorted = [...snapshots].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  if (sorted.length < windowSize) return [];
+
+  const points: RollingCorrelationPoint[] = [];
+  for (let end = windowSize; end <= sorted.length; end++) {
+    const window = sorted.slice(end - windowSize, end);
+    const fgi = window.map((s) => s.fearGreedValue);
+    const btcChange = window.map((s) => s.btcChange24h);
+    const ethChange = window.map((s) => s.ethChange24h);
+    points.push({
+      date:
+        typeof window[window.length - 1].date === "string"
+          ? (window[window.length - 1].date as string)
+          : new Date(window[window.length - 1].date).toISOString().slice(0, 10),
+      btc: pearsonCorrelation(fgi, btcChange),
+      eth: pearsonCorrelation(fgi, ethChange),
+    });
+  }
+  return points;
 }

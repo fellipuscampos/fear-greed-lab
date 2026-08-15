@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeInsights } from "./insights";
+import { computeInsights, computeRollingCorrelation } from "./insights";
 
 describe("computeInsights", () => {
   it("returns zeroed insights for an empty dataset", () => {
@@ -30,5 +30,41 @@ describe("computeInsights", () => {
     ];
     const shuffled = [ascending[1], ascending[0]];
     expect(computeInsights(shuffled)).toEqual(computeInsights(ascending));
+  });
+});
+
+describe("computeRollingCorrelation", () => {
+  function dateAt(i: number): string {
+    const d = new Date("2026-01-01T00:00:00Z");
+    d.setUTCDate(d.getUTCDate() + i);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function makeSeries(n: number) {
+    return Array.from({ length: n }, (_, i) => ({
+      date: dateAt(i),
+      fearGreedValue: 10 + i,
+      btcChange24h: -5 + i,
+      ethChange24h: -5 + i,
+    }));
+  }
+
+  it("returns an empty array when there isn't a full window yet", () => {
+    expect(computeRollingCorrelation(makeSeries(10), 30)).toEqual([]);
+  });
+
+  it("emits one point per day once the window is full", () => {
+    const points = computeRollingCorrelation(makeSeries(35), 30);
+    expect(points).toHaveLength(6); // windows ending on day index 29..34
+    expect(points[0].date).toBe(dateAt(29));
+    expect(points.at(-1)?.date).toBe(dateAt(34));
+  });
+
+  it("each window is strongly correlated for a linear series", () => {
+    const points = computeRollingCorrelation(makeSeries(35), 30);
+    for (const p of points) {
+      expect(p.btc).toBeGreaterThan(0.99);
+      expect(p.eth).toBeGreaterThan(0.99);
+    }
   });
 });

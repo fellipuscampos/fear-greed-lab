@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { computeInsights } from "@/lib/insights";
+import { computeInsights, computeRollingCorrelation } from "@/lib/insights";
+import { backtestFearGreedStrategy } from "@/lib/backtest";
 import { SentimentChart } from "@/components/SentimentChart";
+import { CorrelationChart } from "@/components/CorrelationChart";
+import { BacktestCard } from "@/components/BacktestCard";
 import { FearGreedBadge, StatCard } from "@/components/StatCard";
 
 export const revalidate = 3600;
@@ -36,11 +39,19 @@ export default async function Home() {
   }
 
   const insights = computeInsights(snapshots);
+  const rollingCorrelation = computeRollingCorrelation(snapshots, 30);
+  const btcBacktest = backtestFearGreedStrategy(
+    snapshots.map((s) => ({ date: s.date, fearGreedValue: s.fearGreedValue, price: s.btcPriceUsd }))
+  );
+  const ethBacktest = backtestFearGreedStrategy(
+    snapshots.map((s) => ({ date: s.date, fearGreedValue: s.fearGreedValue, price: s.ethPriceUsd }))
+  );
   const latest = snapshots[snapshots.length - 1];
   const chartData = snapshots.map((s) => ({
     date: s.date.toISOString().slice(0, 10),
     fearGreedValue: s.fearGreedValue,
     btcPriceUsd: s.btcPriceUsd,
+    ethPriceUsd: s.ethPriceUsd,
   }));
 
   return (
@@ -98,6 +109,32 @@ export default async function Home() {
             value={formatCorrelation(insights.eth.nextDay)}
             hint={interpret(insights.eth.nextDay)}
           />
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <h2 className="text-sm uppercase tracking-wide text-neutral-400 mb-1">
+          Correlação em janela móvel (30 dias)
+        </h2>
+        <p className="text-xs text-neutral-500 mb-3">
+          A correlação agregada dos 365 dias esconde se a relação muda por regime de mercado.
+          Aqui ela é recalculada a cada dia, usando só os 30 dias anteriores.
+        </p>
+        <CorrelationChart data={rollingCorrelation} />
+      </section>
+
+      <section className="mb-10">
+        <h2 className="text-sm uppercase tracking-wide text-neutral-400 mb-1">
+          Backtest: comprar no medo, vender na ganância
+        </h2>
+        <p className="text-xs text-neutral-500 mb-3">
+          Simulação simples: entra quando o índice ≤ 20 (medo extremo), sai quando ≥ 80 (ganância
+          extrema), decidido sempre com a leitura do dia anterior. Comparado contra apenas comprar
+          e segurar no primeiro dia do histórico.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <BacktestCard asset="BTC" result={btcBacktest} />
+          <BacktestCard asset="ETH" result={ethBacktest} />
         </div>
       </section>
 
