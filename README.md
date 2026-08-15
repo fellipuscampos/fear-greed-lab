@@ -8,6 +8,15 @@ Este projeto ingere diariamente o índice de sentimento e os preços de BTC/ETH,
 histórico e calcula a correlação de Pearson real entre os dois — no mesmo dia e com um dia de
 defasagem (sentimento hoje → preço amanhã).
 
+![Dashboard do Fear & Greed Lab](docs/screenshot-desktop.png)
+
+<details>
+<summary>Versão mobile</summary>
+
+<img src="docs/screenshot-mobile.png" alt="Fear & Greed Lab em mobile" width="360" />
+
+</details>
+
 ## O que os dados mostram (365 dias de histórico)
 
 | Métrica | BTC | ETH |
@@ -22,25 +31,27 @@ números exatos do dia mudam a cada ingestão — o dashboard sempre mostra o c�
 ## Stack
 
 - Next.js 16 (App Router) + TypeScript + Tailwind CSS 4
-- Prisma 7 (SQLite local via driver adapter; troque para Postgres em produção)
+- Prisma 7 + Postgres (Neon, via driver adapter `@prisma/adapter-pg`)
 - Vitest para a lógica de correlação/insights (a parte que realmente precisa estar certa)
 - Sem dependências de gráfico — o chart é um SVG simples, sem lib externa
+- Deploy: Vercel, com Vercel Cron chamando a ingestão diária
 
 ## Como rodar
 
 ```bash
 npm install
-cp .env.example .env
+cp .env.example .env    # aponte DATABASE_URL pra um Postgres (Neon free tier funciona bem)
 npx prisma migrate dev
-npm run backfill      # popula ~1 ano de histórico (APIs públicas, sem chave)
+npm run backfill        # popula ~1 ano de histórico (APIs públicas, sem chave)
 npm run dev
 ```
 
 ## Ingestão diária em produção
 
-`GET /api/ingest` busca a leitura do dia e faz upsert de uma linha. Aponte um cron (Vercel Cron,
-GitHub Actions `schedule`, etc.) pra esse endpoint uma vez por dia. Se `CRON_SECRET` estiver
-definido, o endpoint exige `Authorization: Bearer <CRON_SECRET>`.
+`GET /api/ingest` busca a leitura do dia e faz upsert de uma linha. Em produção, o
+[Vercel Cron](https://vercel.com/docs/cron-jobs) configurado em `vercel.json` chama esse
+endpoint uma vez por dia (`0 0 * * *`) e envia automaticamente
+`Authorization: Bearer <CRON_SECRET>` quando a env var `CRON_SECRET` está definida no projeto.
 
 ## Fontes de dados
 
