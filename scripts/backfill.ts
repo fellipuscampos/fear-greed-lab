@@ -1,13 +1,9 @@
 import "dotenv/config";
 import { prisma } from "../src/lib/prisma";
 import { fetchDailyPriceHistory, fetchFearGreedHistory } from "../src/lib/sources";
+import { pctChange } from "../src/lib/pct-change";
 
 const DAYS = Number(process.env.BACKFILL_DAYS ?? 365);
-
-function pctChange(prev: number, curr: number): number {
-  if (prev === 0) return 0;
-  return ((curr - prev) / prev) * 100;
-}
 
 async function main() {
   console.log(`Backfilling ~${DAYS} days of Fear & Greed + BTC/ETH price history...`);
