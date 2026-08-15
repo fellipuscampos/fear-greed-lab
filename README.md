@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fear & Greed Lab
 
-## Getting Started
+O [Fear & Greed Index](https://alternative.me/crypto/fear-and-greed-index/) é usado por muita
+gente como sinal de mercado: "extreme fear" = comprar, "extreme greed" = vender. Mas ele
+**realmente** antecipa o preço, ou só reflete o que já aconteceu?
 
-First, run the development server:
+Este projeto ingere diariamente o índice de sentimento e os preços de BTC/ETH, guarda o
+histórico e calcula a correlação de Pearson real entre os dois — no mesmo dia e com um dia de
+defasagem (sentimento hoje → preço amanhã).
+
+## O que os dados mostram (365 dias de histórico)
+
+| Métrica | BTC | ETH |
+|---|---|---|
+| Sentimento × preço (mesmo dia) | fraca, positiva | fraca, positiva |
+| Sentimento hoje → preço amanhã | ~0 (sem poder preditivo) | ~0 (sem poder preditivo) |
+
+Na prática: o índice tende a se mover *junto* com o preço no mesmo dia (o que faz sentido —
+ele é parcialmente derivado de volatilidade e momentum), mas **não prediz o próximo dia**. Os
+números exatos do dia mudam a cada ingestão — o dashboard sempre mostra o cálculo atual.
+
+## Stack
+
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS 4
+- Prisma 7 (SQLite local via driver adapter; troque para Postgres em produção)
+- Vitest para a lógica de correlação/insights (a parte que realmente precisa estar certa)
+- Sem dependências de gráfico — o chart é um SVG simples, sem lib externa
+
+## Como rodar
 
 ```bash
+npm install
+cp .env.example .env
+npx prisma migrate dev
+npm run backfill      # popula ~1 ano de histórico (APIs públicas, sem chave)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Ingestão diária em produção
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`GET /api/ingest` busca a leitura do dia e faz upsert de uma linha. Aponte um cron (Vercel Cron,
+GitHub Actions `schedule`, etc.) pra esse endpoint uma vez por dia. Se `CRON_SECRET` estiver
+definido, o endpoint exige `Authorization: Bearer <CRON_SECRET>`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Fontes de dados
 
-## Learn More
+- [alternative.me](https://alternative.me/crypto/fear-and-greed-index/) — Fear & Greed Index (gratuita, sem chave)
+- [CoinGecko](https://www.coingecko.com/en/api) — preços de BTC/ETH (gratuita, sem chave)
 
-To learn more about Next.js, take a look at the following resources:
+## Aviso
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Correlação não é causalidade, e o coeficiente de Pearson não captura relações não-lineares.
+Isso é uma exploração de dados, não uma recomendação de investimento.
