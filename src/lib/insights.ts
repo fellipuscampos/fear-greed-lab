@@ -23,7 +23,7 @@ export type RollingCorrelationPoint = {
  * Computes two correlations per asset:
  * - sameDay: does today's Fear & Greed value line up with today's price move?
  * - nextDay: does today's Fear & Greed value predict tomorrow's price move?
- *   (a lag-1 correlation — the more interesting question for "does sentiment lead price")
+ *   (a lag-1 correlation, the more interesting question for "does sentiment lead price")
  */
 export function computeInsights(snapshots: Snapshot[]): Insights {
   const sorted = [...snapshots].sort(

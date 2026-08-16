@@ -10,7 +10,7 @@ import { pctChange } from "@/lib/pct-change";
  *
  * `btcChange24h`/`ethChange24h` are computed close-to-close against the most
  * recent stored snapshot (same method `scripts/backfill.ts` uses), not
- * CoinGecko's own rolling `usd_24h_change` — the two aren't the same measure
+ * CoinGecko's own rolling `usd_24h_change`. The two aren't the same measure
  * (calendar-day close-to-close vs. trailing 24h from request time), and
  * mixing them in the same column would quietly corrupt the correlation math.
  */

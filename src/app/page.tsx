@@ -84,7 +84,7 @@ export default async function Home() {
         <SentimentChart data={chartData} />
       </section>
 
-      <section className="mb-10">
+      <section className="mb-10 pt-8 border-t border-neutral-900">
         <h2 className="text-sm uppercase tracking-wide text-neutral-400 mb-3">
           Correlação de Pearson
         </h2>
@@ -112,7 +112,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mb-10">
+      <section className="mb-10 pt-8 border-t border-neutral-900">
         <h2 className="text-sm uppercase tracking-wide text-neutral-400 mb-1">
           Correlação em janela móvel (30 dias)
         </h2>
@@ -123,7 +123,7 @@ export default async function Home() {
         <CorrelationChart data={rollingCorrelation} />
       </section>
 
-      <section className="mb-10">
+      <section className="mb-10 pt-8 border-t border-neutral-900">
         <h2 className="text-sm uppercase tracking-wide text-neutral-400 mb-1">
           Backtest: comprar no medo, vender na ganância
         </h2>
@@ -132,15 +132,15 @@ export default async function Home() {
           extrema), decidido sempre com a leitura do dia anterior. Comparado contra apenas comprar
           e segurar no primeiro dia do histórico.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:max-w-2xl gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <BacktestCard asset="BTC" result={btcBacktest} />
           <BacktestCard asset="ETH" result={ethBacktest} />
         </div>
       </section>
 
-      <footer className="text-xs text-neutral-500 border-t border-neutral-800 pt-6 max-w-2xl">
+      <footer className="text-xs text-neutral-500 border-t border-neutral-800 pt-8 max-w-2xl">
         <p>
-          Correlação não é causalidade — e um coeficiente de Pearson não captura relações
+          Correlação não é causalidade, e um coeficiente de Pearson não captura relações
           não-lineares. Este projeto é uma exploração, não uma recomendação de investimento.
         </p>
         <p className="mt-1">
