@@ -28,7 +28,7 @@ export default async function Home() {
 
   if (snapshots.length === 0) {
     return (
-      <main className="max-w-3xl mx-auto px-6 py-16">
+      <main className="max-w-5xl mx-auto px-6 py-16">
         <h1 className="text-2xl font-semibold mb-2">Fear & Greed Lab</h1>
         <p className="text-neutral-400">
           Nenhum dado ainda. Rode <code className="text-neutral-200">npm run backfill</code>{" "}
@@ -55,8 +55,8 @@ export default async function Home() {
   }));
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-      <header className="mb-10">
+    <main className="max-w-5xl mx-auto px-6 py-12 md:py-16">
+      <header className="mb-10 max-w-3xl">
         <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Fear & Greed Lab</h1>
         <p className="text-neutral-400 mt-2">
           O sentimento do mercado cripto realmente antecipa o preço, ou só reage a ele? Cruzo o{" "}
@@ -88,7 +88,7 @@ export default async function Home() {
         <h2 className="text-sm uppercase tracking-wide text-neutral-400 mb-3">
           Correlação de Pearson
         </h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard
             label="Sentimento × BTC (mesmo dia)"
             value={formatCorrelation(insights.btc.sameDay)}
@@ -116,7 +116,7 @@ export default async function Home() {
         <h2 className="text-sm uppercase tracking-wide text-neutral-400 mb-1">
           Correlação em janela móvel (30 dias)
         </h2>
-        <p className="text-xs text-neutral-500 mb-3">
+        <p className="text-xs text-neutral-500 mb-3 max-w-2xl">
           A correlação agregada dos 365 dias esconde se a relação muda por regime de mercado.
           Aqui ela é recalculada a cada dia, usando só os 30 dias anteriores.
         </p>
@@ -127,18 +127,18 @@ export default async function Home() {
         <h2 className="text-sm uppercase tracking-wide text-neutral-400 mb-1">
           Backtest: comprar no medo, vender na ganância
         </h2>
-        <p className="text-xs text-neutral-500 mb-3">
+        <p className="text-xs text-neutral-500 mb-3 max-w-2xl">
           Simulação simples: entra quando o índice ≤ 20 (medo extremo), sai quando ≥ 80 (ganância
           extrema), decidido sempre com a leitura do dia anterior. Comparado contra apenas comprar
           e segurar no primeiro dia do histórico.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:max-w-2xl gap-3">
           <BacktestCard asset="BTC" result={btcBacktest} />
           <BacktestCard asset="ETH" result={ethBacktest} />
         </div>
       </section>
 
-      <footer className="text-xs text-neutral-500 border-t border-neutral-800 pt-6">
+      <footer className="text-xs text-neutral-500 border-t border-neutral-800 pt-6 max-w-2xl">
         <p>
           Correlação não é causalidade — e um coeficiente de Pearson não captura relações
           não-lineares. Este projeto é uma exploração, não uma recomendação de investimento.
